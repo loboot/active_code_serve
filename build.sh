@@ -8,6 +8,7 @@ rm -rf ActiveCodeDeploy/dist/*  ActiveCodeDeploy/views/*
 
 mkdir -p ActiveCodeDeploy/dist  ActiveCodeDeploy/views
 
+cp ./pm2.conf.json ActiveCodeDeploy/pm2.conf.json
 cp ./package.json ActiveCodeDeploy/package.json
 cp ./.env ActiveCodeDeploy/.env
 
