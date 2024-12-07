@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import { initDatabase } from './modules/database/initDatabase';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { ResponseInterceptor } from './common/responseInterceptor';
 import { AllExceptionsFilter } from './common/exception.filter';
 
@@ -29,6 +29,8 @@ async function bootstrap() {
 
   const PORT = process.env.PORT;
 
-  await app.listen(PORT ?? 3000);
+  await app.listen(PORT ?? 3000, () => {
+    Logger.log(`服务启动成功: http://localhost:${PORT}`, 'Main');
+  });
 }
 bootstrap();

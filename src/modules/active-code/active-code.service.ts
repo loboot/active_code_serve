@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { ActiveCodeEntity } from './entities/active-code.entity';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
@@ -16,6 +16,7 @@ export class ActiveCodeService {
     @InjectRepository(ActiveCodeEntity)
     private readonly activeCodeRepository: Repository<ActiveCodeEntity>,
   ) {}
+
   // 生成一个新的激活码
   async generateActivationCode() {
     const activeCode = uuidv4().split('-')[0]; // 使用 uuid 生成激活码（取 uuid 的一部分）
@@ -35,26 +36,31 @@ export class ActiveCodeService {
   }
 
   // 判断激活码是否有效
-  async validateActiveCode(activeCode: string): Promise<boolean> {
+  async validateActiveCode(ip: string, activeCode: string): Promise<boolean> {
     // 查询激活码是否存在
-
     const activeCodeRecord = await this.activeCodeRepository.findOne({
       where: { activeCode },
     });
+    Logger.debug(JSON.stringify(activeCodeRecord), '查询到的激活码');
 
-    if (!activeCodeRecord) throw new BadRequestException('无效的激活码');
-
-    if (activeCodeRecord.macAddress) {
-      throw new BadRequestException('激活码已被使用');
+    if (!activeCodeRecord) {
+      throw new HttpException('激活码不存在', HttpStatus.BAD_REQUEST);
     }
 
-    // 如果激活码存在且没有被使用，返回有效
+    // 检查 IP 地址是否与激活码匹配
+    if (activeCodeRecord.ip && activeCodeRecord.ip !== ip) {
+      throw new HttpException(
+        '激活码已在其他设备上激活',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     return true;
   }
 
   // 激活激活码
-  async activateActiveCode(activeCode: string, macAddress: string) {
-    await this.validateActiveCode(activeCode);
+  async activateActiveCode(activeCode: string, ip: string) {
+    await this.validateActiveCode(ip, activeCode);
 
     // 更新激活码状态，标记为已使用
     const activeCodeRecord = await this.activeCodeRepository.findOne({
@@ -62,19 +68,28 @@ export class ActiveCodeService {
     });
 
     try {
-      activeCodeRecord.macAddress = macAddress;
+      activeCodeRecord.ip = ip;
 
       await this.activeCodeRepository.save(activeCodeRecord);
       return true;
     } catch (e) {
+      if (e instanceof QueryFailedError) {
+        if (e.message.includes('Duplicate entry')) {
+          throw new HttpException(
+            '该 IP 地址已经绑定过激活码',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+      }
+      Logger.debug(e);
       throw new BadRequestException('激活失败');
     }
   }
 
   // 查询激活状态
-  async checkActiveCode(macAddress: string) {
+  async checkActiveCode(ip: string) {
     const isActivated = await this.activeCodeRepository.findOne({
-      where: { macAddress },
+      where: { ip },
     });
 
     return !!isActivated;

@@ -9,5 +9,5 @@ export class ActiveCodeEntity {
   activeCode: string;
 
   @Column({ type: 'varchar', length: 255, unique: true, nullable: true })
-  macAddress: string;
+  ip: string;
 }
