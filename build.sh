@@ -6,7 +6,7 @@ pnpm build
 
 rm -rf ActiveCodeDeploy/dist/*  ActiveCodeDeploy/views/*
 
-mkdir -p ActiveCodeDeploy/dist ActiveCodeDeploy/public/admin ActiveCodeDeploy/views
+mkdir -p ActiveCodeDeploy/dist  ActiveCodeDeploy/views
 
 cp ./package.json ActiveCodeDeploy/package.json
 cp ./.env ActiveCodeDeploy/.env
