@@ -42,7 +42,7 @@
         const res = await response.json()
         let message = ''
         if (res.code === 200) {
-          message = res.data.activeCode
+          message = res.data
         } else {
           message = res.message
         }

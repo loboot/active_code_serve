@@ -4,6 +4,8 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import { initDatabase } from './modules/database/initDatabase';
 import { ValidationPipe } from '@nestjs/common';
+import { ResponseInterceptor } from './common/responseInterceptor';
+import { AllExceptionsFilter } from './common/exception.filter';
 
 async function bootstrap() {
   initDatabase();
@@ -20,6 +22,10 @@ async function bootstrap() {
   );
   app.setBaseViewsDir(join(__dirname, '..', 'views'));
   app.setViewEngine('hbs');
+
+  // 使用全局拦截器
+  app.useGlobalInterceptors(new ResponseInterceptor());
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   const PORT = process.env.PORT;
 
