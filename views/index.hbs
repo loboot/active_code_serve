@@ -9,7 +9,29 @@
 
 <body class='bg-gray-100 font-sans leading-normal tracking-normal'>
   <div class='min-h-screen flex items-center justify-center'>
-    <div class='w-full max-w-md bg-white shadow-md rounded-lg p-8'>
+    <div id="password-wrapper">
+      <div class='w-full max-w-md bg-white shadow-md rounded-lg p-8'>
+        <h2 class='text-2xl font-bold text-center text-blue-600 mb-6'>请输入密码</h2>
+        <form id='passwordForm' class='space-y-4'>
+          <div>
+            <label for='password' class='block text-sm font-medium text-gray-700'>密码</label>
+            <input type='password' id='password' name='password'
+              class='mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500'
+              required>
+          </div>
+          <div class='flex justify-center'>
+            <button type='submit'
+              class='w-full py-2 px-4 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500'>
+              确认
+            </button>
+          </div>
+        </form>
+      </div>
+
+
+
+    </div>
+    <div id="activate-cod-wrapper" class='w-full max-w-md bg-white shadow-md rounded-lg p-8 hidden'>
       <h2 class='text-2xl font-bold text-center text-blue-600 mb-6'>生成你的激活码</h2>
 
       <!-- 表单开始 -->
@@ -32,7 +54,25 @@
     </div>
   </div>
 
+  <script>
+    const wrapper = document.getElementById('activate-cod-wrapper')
+    const passwordWrapper = document.getElementById('password-wrapper')
+
+    const passwordForm = document.getElementById('passwordForm');
+    passwordForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const password = document.getElementById('password').value;
+      if (password === 'Abcd&1234') {
+        passwordWrapper.classList.add('hidden');
+        wrapper.classList.remove('hidden');
+      } else {
+        alert('密码错误');
+      }
+    });
+  </script>
+
   <script type='text/javascript'>
+
 
     const baseUrl = "{{ baseUrl }}"
     document.getElementById('activationForm').addEventListener('submit',
